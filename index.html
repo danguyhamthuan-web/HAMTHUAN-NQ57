@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KH40 – Theo dõi KHCN & CĐS 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pri:#1e3a5f;--pri-l:#2a5a8f;--pri-pale:#e8eef5;
+  --accent:#c8922a;--accent-bg:#fdf6e3;
+  --bg:#f3f4f8;--card:#fff;--text:#1a1a2e;--text2:#5a6178;--border:#e2e5ee;
+  --ok:#16a34a;--ok-bg:#dcfce7;--warn:#d97706;--warn-bg:#fef3c7;
+  --mute:#94a3b8;--mute-bg:#f1f5f9;
+  --r:10px;--sh:0 1px 3px rgba(0,0,0,.08);--sh-lg:0 4px 16px rgba(0,0,0,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh}
+.hidden{display:none!important}
+
+/* LOGIN */
+.login-wrap{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,var(--pri),var(--pri-l))}
+.login-box{background:var(--card);border-radius:16px;padding:32px 24px;width:100%;max-width:420px;box-shadow:var(--sh-lg)}
+.login-box h1{font-size:17px;font-weight:700;color:var(--pri);text-align:center;line-height:1.45;margin-bottom:2px}
+.login-box .sub{font-size:13px;color:var(--text2);text-align:center;margin-bottom:6px}
+.login-box .org{font-size:11px;color:var(--accent);text-align:center;margin-bottom:24px;font-weight:600;letter-spacing:.3px}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
+.fg select,.fg input[type=password],.fg input[type=text],.fg textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:var(--text)}
+.fg select:focus,.fg input:focus,.fg textarea:focus{outline:none;border-color:var(--pri-l)}
+.fg select optgroup{font-weight:700;color:var(--pri);font-size:13px}
+.fg select option{font-weight:400;color:var(--text);font-size:14px}
+.btn{padding:12px;border:none;border-radius:8px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;width:100%;transition:background .2s}
+.btn-pri{background:var(--pri);color:#fff;margin-top:6px}.btn-pri:hover{background:var(--pri-l)}
+.login-err{color:#dc2626;font-size:13px;text-align:center;margin-top:10px;display:none}
+.admin-link{text-align:center;margin-top:16px;font-size:13px}.admin-link a{color:var(--pri-l);text-decoration:none;font-weight:500}
+
+/* HEADER */
+.hdr{background:var(--pri);color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.hdr h2{font-size:14px;font-weight:600}.hdr .uname{font-size:11px;opacity:.8;margin-top:1px}
+.btn-out{background:rgba(255,255,255,.15);color:#fff;border:none;padding:6px 12px;border-radius:6px;font-size:12px;font-family:inherit;cursor:pointer}
+
+/* TABS */
+.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:47px;z-index:99}
+.tab-btn{flex:1;padding:11px 8px;font-size:13px;font-weight:600;font-family:inherit;border:none;background:none;color:var(--text2);cursor:pointer;border-bottom:3px solid transparent;transition:all .2s}
+.tab-btn.active{color:var(--pri);border-bottom-color:var(--pri)}
+
+/* MONTH BAR */
+.mbar{background:var(--card);border-bottom:1px solid var(--border);padding:8px 12px;overflow-x:auto;display:flex;gap:5px;position:sticky;top:87px;z-index:98;-webkit-overflow-scrolling:touch}
+.mbar.nv-only{top:47px}
+.mbar::-webkit-scrollbar{display:none}
+.mpill{flex-shrink:0;padding:6px 12px;border-radius:18px;font-size:12px;font-weight:500;border:1.5px solid var(--border);background:#fff;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .2s}
+.mpill.active{background:var(--pri);color:#fff;border-color:var(--pri)}
+.mpill .dot{display:inline-block;width:5px;height:5px;border-radius:50%;margin-left:3px;vertical-align:middle;background:var(--ok)}
+
+/* CARRY-FORWARD BANNER */
+.carry-banner{background:var(--accent-bg);border-bottom:1px solid #e9d5a0;padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:12.5px;color:#78590a}
+.carry-banner .btn-carry{flex-shrink:0;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;border:1.5px solid var(--accent);background:#fff;color:var(--accent);white-space:nowrap}
+.carry-banner .btn-carry:hover{background:var(--accent);color:#fff}
+.carry-banner .btn-dismiss{flex-shrink:0;background:none;border:none;color:#b8960a;cursor:pointer;font-size:16px;padding:0 4px}
+
+/* SUMMARY */
+.sbar{display:flex;gap:8px;padding:12px;overflow-x:auto}
+.scard{flex:1;min-width:72px;background:var(--card);border-radius:var(--r);padding:10px 8px;text-align:center;box-shadow:var(--sh)}
+.scard .n{font-size:20px;font-weight:800}.scard .l{font-size:10px;color:var(--text2);margin-top:1px}
+.n-t{color:var(--pri)}.n-d{color:var(--ok)}.n-w{color:var(--warn)}.n-e{color:var(--mute)}
+
+/* SECTION TITLE */
+.stitle{font-size:12px;font-weight:700;color:var(--pri);padding:10px 14px 4px;text-transform:uppercase;letter-spacing:.2px}
+
+/* INDICATOR CARD */
+.ilist{padding:0 10px 16px}
+.icard{background:var(--card);border-radius:var(--r);padding:12px;margin-bottom:6px;box-shadow:var(--sh);cursor:pointer;display:flex;align-items:flex-start;gap:10px;border-left:4px solid var(--border);transition:transform .1s}
+.icard:active{transform:scale(.99)}
+.icard.s-done{border-left-color:var(--ok)}.icard.s-wip{border-left-color:var(--warn)}
+.icard .stt{flex-shrink:0;width:26px;height:26px;background:var(--mute-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text2)}
+.icard.s-done .stt{background:var(--ok-bg);color:var(--ok)}.icard.s-wip .stt{background:var(--warn-bg);color:var(--warn)}
+.icard .inf{flex:1;min-width:0}
+.icard .cname{font-size:12.5px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.icard .cmeta{font-size:10.5px;color:var(--text2);margin-top:3px}
+.icard .cprog{font-size:13px;font-weight:700;flex-shrink:0;align-self:center}
+.cprog.done{color:var(--ok)}.cprog.wip{color:var(--warn)}.cprog.empty{color:var(--mute);font-weight:400;font-size:18px}
+
+/* NHIỆM VỤ CARD */
+.nvcard{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:8px;box-shadow:var(--sh);cursor:pointer;border-left:4px solid var(--border);transition:transform .1s}
+.nvcard:active{transform:scale(.99)}
+.nvcard.has-data{border-left-color:var(--ok)}
+.nvcard .nv-head{display:flex;align-items:flex-start;gap:10px}
+.nvcard .nv-num{flex-shrink:0;width:26px;height:26px;background:var(--pri-pale);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--pri)}
+.nvcard.has-data .nv-num{background:var(--ok-bg);color:var(--ok)}
+.nvcard .nv-title{flex:1;font-size:13px;font-weight:500;line-height:1.4}
+.nvcard .nv-status{flex-shrink:0;font-size:11px;color:var(--mute);align-self:center}
+.nvcard.has-data .nv-status{color:var(--ok)}
+.nvcard .nv-preview{margin-top:8px;font-size:12px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;padding-left:36px}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:flex-end;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:var(--card);border-radius:16px 16px 0 0;width:100%;max-width:560px;max-height:88dvh;overflow-y:auto;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-h{padding:16px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:10px;position:sticky;top:0;background:var(--card);border-radius:16px 16px 0 0;z-index:1}
+.modal-h h3{font-size:14px;font-weight:700;color:var(--pri);flex:1;line-height:1.4;padding-right:30px}
+.modal-h .mbadge{flex-shrink:0;background:var(--pri);color:#fff;padding:3px 9px;border-radius:10px;font-size:11px;font-weight:600}
+.btn-x{position:absolute;top:12px;right:12px;background:var(--mute-bg);border:none;width:26px;height:26px;border-radius:50%;font-size:14px;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:center}
+.modal-b{padding:14px 18px 22px}
+.modal-b .field{margin-bottom:14px}
+.modal-b .field label{display:block;font-size:12.5px;font-weight:600;margin-bottom:5px}
+.modal-b textarea{min-height:80px;resize:vertical;width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit}
+.modal-b .field input[type=number],.modal-b .field input[type=text]{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit}
+.modal-b input:focus,.modal-b textarea:focus{outline:none;border-color:var(--pri-l)}
+.pdisp{display:flex;align-items:center;gap:10px}.pdisp input[type=range]{flex:1;accent-color:var(--pri)}.pdisp .pct{font-size:18px;font-weight:700;color:var(--pri);min-width:45px;text-align:right}
+.tgt-box{background:var(--mute-bg);border-radius:8px;padding:9px 11px;font-size:11.5px;color:var(--text2);margin-bottom:14px;line-height:1.5}
+.tgt-box strong{color:var(--text)}
+.prev-box{background:var(--accent-bg);border:1px dashed var(--accent);border-radius:8px;padding:9px 11px;font-size:11.5px;color:#78590a;margin-bottom:14px;line-height:1.5}
+.prev-box strong{color:#5c4508}
+.mact{display:flex;gap:8px;margin-top:6px}
+.mact button{flex:1;padding:11px;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;border:none}
+.btn-sav{background:var(--pri);color:#fff}.btn-sav:hover{background:var(--pri-l)}
+.btn-can{background:var(--mute-bg);color:var(--text2)}
+
+/* ADMIN */
+.admin-hdr{background:var(--pri);padding:14px 16px}
+.admin-hdr h2{color:#fff;font-size:16px;font-weight:700}
+.admin-hdr .asub{color:rgba(255,255,255,.7);font-size:12px;margin-top:2px}
+.admin-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--card);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.admin-bar select{padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;max-width:200px}
+.admin-bar .btn-exp{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;border:none;background:var(--ok);color:#fff;white-space:nowrap}
+.admin-bar .btn-exp:hover{background:#15803d}
+.admin-tabs{display:flex;background:var(--card);border-bottom:2px solid var(--border)}
+.admin-tab{flex:1;padding:11px;font-size:13px;font-weight:600;font-family:inherit;border:none;background:none;color:var(--text2);cursor:pointer;border-bottom:3px solid transparent}
+.admin-tab.active{color:var(--pri);border-bottom-color:var(--accent)}
+.admin-table-wrap{overflow-x:auto;padding:12px}
+.admin-table{width:100%;border-collapse:collapse;font-size:12px;min-width:800px}
+.admin-table th{background:var(--pri);color:#fff;padding:8px 10px;text-align:left;font-weight:600;position:sticky;top:0;white-space:nowrap}
+.admin-table td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+.admin-table tr:hover td{background:var(--pri-pale)}
+.admin-table .cell-done{background:var(--ok-bg);color:var(--ok);font-weight:600;text-align:center}
+.admin-table .cell-wip{background:var(--warn-bg);color:var(--warn);font-weight:600;text-align:center}
+.admin-table .cell-empty{color:var(--mute);text-align:center;font-size:11px}
+.nv-report-block{background:var(--mute-bg);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:12px;line-height:1.6}
+.nv-report-block .rpt-unit{font-weight:700;color:var(--pri);margin-bottom:4px;font-size:12.5px}
+.nv-report-block .rpt-text{color:var(--text)}
+.nv-report-block .rpt-meta{font-size:11px;color:var(--mute);margin-top:4px}
+.no-data{text-align:center;padding:30px 20px;color:var(--mute);font-size:13px}
+.adm-stat{display:flex;gap:8px;padding:12px 14px;flex-wrap:wrap}
+.adm-stat .scard{min-width:100px}
+
+/* TOAST / LOADING */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--pri);color:#fff;padding:10px 22px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:var(--sh-lg);z-index:300;transition:transform .3s;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+@media(min-width:640px){
+  .modal-bg{align-items:center}.modal{border-radius:16px;margin:20px}.modal-h{border-radius:16px 16px 0 0}
+  .sbar,.ilist,.stitle{max-width:600px;margin-left:auto;margin-right:auto}
+}
+@media print{
+  .hdr,.tabs,.mbar,.admin-bar,.btn-out,.admin-hdr,.admin-tabs,.carry-banner,.no-print{display:none!important}
+  body{background:#fff;font-size:11px}
+  .admin-table{min-width:auto;font-size:10px}
+  .admin-table th{background:#333;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login-wrap">
+  <div class="login-box">
+    <h1>Theo dõi chỉ tiêu KH&CN,<br>ĐMST và Chuyển đổi số 2026</h1>
+    <div class="sub">Xã Hàm Thuận — Kế hoạch số 40-KH/ĐU</div>
+    <div class="org">ĐẢNG ỦY XÃ HÀM THUẬN</div>
+    <div class="fg">
+      <label>Chọn đơn vị / tổ chức đảng</label>
+      <select id="selUnit"><option value="">— Chọn —</option></select>
+    </div>
+    <div class="fg">
+      <label>Mã truy cập</label>
+      <input type="password" id="txtPw" placeholder="Nhập mã truy cập">
+    </div>
+    <button class="btn btn-pri" onclick="doLogin()">Đăng nhập</button>
+    <div id="loginErr" class="login-err"></div>
+    <div class="admin-link"><a href="#" onclick="doAdminLogin();return false">⚙ Trang tổng hợp (Quản trị)</a></div>
+  </div>
+</div>
+
+<!-- UNIT APP -->
+<div id="unitScreen" class="hidden">
+  <header class="hdr">
+    <div><h2>KH40 – Chỉ tiêu 2026</h2><div class="uname" id="hdrUnit"></div></div>
+    <button class="btn-out" onclick="doLogout()">Đăng xuất</button>
+  </header>
+  <!-- Tabs: only for cq units -->
+  <div class="tabs" id="unitTabs">
+    <button class="tab-btn active" data-tab="chitieu" onclick="switchTab('chitieu',this)">Chỉ tiêu (29)</button>
+    <button class="tab-btn" data-tab="nhiemvu" onclick="switchTab('nhiemvu',this)">Nhiệm vụ & Giải pháp</button>
+  </div>
+  <div class="mbar" id="monthBar"></div>
+  <!-- Carry-forward banner -->
+  <div class="carry-banner hidden" id="carryBanner">
+    <span id="carryText"></span>
+    <button class="btn-carry" id="carryBtn" onclick="doCarryForward()">Lũy kế</button>
+    <button class="btn-dismiss" onclick="dismissCarry()">✕</button>
+  </div>
+  <!-- Tab: Chỉ tiêu -->
+  <div id="tabChitieu">
+    <div class="sbar">
+      <div class="scard"><div class="n n-t" id="sT">0</div><div class="l">Chỉ tiêu</div></div>
+      <div class="scard"><div class="n n-d" id="sD">0</div><div class="l">Hoàn thành</div></div>
+      <div class="scard"><div class="n n-w" id="sW">0</div><div class="l">Đang làm</div></div>
+      <div class="scard"><div class="n n-e" id="sE">0</div><div class="l">Chưa nhập</div></div>
+    </div>
+    <div id="indContainer"></div>
+  </div>
+  <!-- Tab: Nhiệm vụ -->
+  <div id="tabNhiemvu" class="hidden">
+    <div style="padding:10px 10px 16px" id="nvContainer"></div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="adminScreen" class="hidden">
+  <div class="admin-hdr">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div><h2>Trang tổng hợp KH40</h2><div class="asub">Văn phòng Đảng ủy xã Hàm Thuận</div></div>
+      <button class="btn-out" onclick="doLogout()">Đăng xuất</button>
+    </div>
+  </div>
+  <div class="admin-tabs">
+    <button class="admin-tab active" onclick="switchAdmTab('adm-ct',this)">Chỉ tiêu</button>
+    <button class="admin-tab" onclick="switchAdmTab('adm-nv',this)">Nhiệm vụ & Giải pháp</button>
+  </div>
+  <div class="admin-bar no-print">
+    <label style="font-size:13px;font-weight:600">Tháng:</label>
+    <select id="admMonth" onchange="renderAdmin()"></select>
+    <label style="font-size:13px;font-weight:600;margin-left:6px">Đơn vị:</label>
+    <select id="admUnit" onchange="renderAdmin()"></select>
+    <button class="btn-exp" id="btnRefresh" onclick="refreshAdmin()" style="margin-left:auto;background:var(--accent)">↻ Tải lại</button>
+    <button class="btn-exp" onclick="exportCSV()">⬇ Xuất CSV</button>
+    <button class="btn-exp" onclick="window.print()" style="background:var(--pri)">🖨 In</button>
+  </div>
+  <div id="admCtPanel"><div class="admin-table-wrap" id="admTableWrap"></div></div>
+  <div id="admNvPanel" class="hidden"><div style="padding:12px 14px" id="admNvContent"></div></div>
+</div>
+
+<!-- MODAL CHỈ TIÊU -->
+<div class="modal-bg" id="modalCt" onclick="if(event.target===this)closeModal('modalCt')">
+  <div class="modal">
+    <div class="modal-h"><h3 id="mCtTitle"></h3><span class="mbadge" id="mCtMonth"></span><button class="btn-x" onclick="closeModal('modalCt')">✕</button></div>
+    <div class="modal-b">
+      <div class="tgt-box" id="mCtTarget"></div>
+      <div class="prev-box hidden" id="mCtPrev"></div>
+      <div class="field"><label>Tiến độ thực hiện (%)</label>
+        <div class="pdisp"><input type="range" id="inProg" min="0" max="100" step="5" value="0" oninput="$('pctL').textContent=this.value+'%'"><span class="pct" id="pctL">0%</span></div>
+      </div>
+      <div class="field"><label>Kết quả cụ thể (lũy kế đến tháng này)</label><textarea id="inResult" placeholder="Mô tả kết quả đạt được..."></textarea></div>
+      <div class="field"><label>Khó khăn, vướng mắc</label><textarea id="inDiff" placeholder="Nêu khó khăn nếu có..." style="min-height:60px"></textarea></div>
+      <div class="field"><label>Người nhập</label><input type="text" id="inReporter" placeholder="Họ và tên"></div>
+      <div class="mact"><button class="btn-can" onclick="closeModal('modalCt')">Hủy</button><button class="btn-sav" onclick="saveCt()">Lưu dữ liệu</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NHIỆM VỤ -->
+<div class="modal-bg" id="modalNv" onclick="if(event.target===this)closeModal('modalNv')">
+  <div class="modal">
+    <div class="modal-h"><h3 id="mNvTitle"></h3><span class="mbadge" id="mNvMonth"></span><button class="btn-x" onclick="closeModal('modalNv')">✕</button></div>
+    <div class="modal-b">
+      <div class="prev-box hidden" id="mNvPrev"></div>
+      <div class="field"><label>Báo cáo kết quả thực hiện (lũy kế đến tháng này)</label><textarea id="inNvReport" placeholder="Trình bày kết quả..." style="min-height:120px"></textarea></div>
+      <div class="field"><label>Kiến nghị, đề xuất</label><textarea id="inNvPropose" placeholder="Kiến nghị nếu có..." style="min-height:60px"></textarea></div>
+      <div class="field"><label>Người nhập</label><input type="text" id="inNvReporter" placeholder="Họ và tên"></div>
+      <div class="mact"><button class="btn-can" onclick="closeModal('modalNv')">Hủy</button><button class="btn-sav" onclick="saveNv()">Lưu báo cáo</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const MNAMES=['','Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
+const MSH=['','T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
+const ADMIN_PW='admin2026';
+
+// ============================================================
+// UNITS — type:'cq' = cơ quan (cả 2 tab), 'dang' = tổ chức đảng (chỉ NV)
+// ============================================================
+const UNITS=[
+  // Cơ quan, đơn vị
+  {id:'UBND',name:'UBND xã Hàm Thuận',pw:'ubnd2026',type:'cq',grp:'Cơ quan, đơn vị'},
+  {id:'VPDU',name:'Văn phòng Đảng ủy xã',pw:'vpdu2026',type:'cq',grp:'Cơ quan, đơn vị'},
+  {id:'BXD',name:'Ban xây dựng Đảng ĐU xã',pw:'bxd2026',type:'cq',grp:'Cơ quan, đơn vị'},
+  {id:'UBKT',name:'Ủy ban Kiểm tra ĐU xã',pw:'ubkt2026',type:'cq',grp:'Cơ quan, đơn vị'},
+  {id:'CA',name:'Công an xã',pw:'ca2026',type:'cq',grp:'Cơ quan, đơn vị'},
+  {id:'MTTQ',name:'Ban TT Ủy ban MTTQVN xã',pw:'mttq2026',type:'cq',grp:'Cơ quan, đơn vị'},
+  {id:'HND',name:'Hội Nông dân xã',pw:'hnd2026',type:'cq',grp:'Cơ quan, đơn vị'},
+  {id:'DTN',name:'Đoàn Thanh niên xã',pw:'dtn2026',type:'cq',grp:'Cơ quan, đơn vị'},
+  {id:'HPN',name:'Hội Phụ nữ xã',pw:'hpn2026',type:'cq',grp:'Cơ quan, đơn vị'},
+  {id:'CCB',name:'Hội Cựu chiến binh xã',pw:'ccb2026',type:'cq',grp:'Cơ quan, đơn vị'},
+  // Đảng bộ cơ sở
+  {id:'DB01',name:'Đảng bộ Trường THPT Hàm Thuận Bắc',pw:'db012026',type:'dang',grp:'Đảng bộ cơ sở'},
+  {id:'DB02',name:'Đảng bộ Trung tâm Y tế',pw:'db022026',type:'dang',grp:'Đảng bộ cơ sở'},
+  {id:'DB03',name:'Đảng bộ Cơ quan Đảng xã Hàm Thuận',pw:'db032026',type:'dang',grp:'Đảng bộ cơ sở'},
+  {id:'DB04',name:'Đảng bộ UBND xã Hàm Thuận',pw:'db042026',type:'dang',grp:'Đảng bộ cơ sở'},
+  {id:'DB05',name:'Đảng bộ Công an xã Hàm Thuận',pw:'db052026',type:'dang',grp:'Đảng bộ cơ sở'},
+  // Chi bộ cơ sở
+  {id:'CS01',name:'Chi bộ Quân sự xã Hàm Thuận',pw:'cs012026',type:'dang',grp:'Chi bộ cơ sở'},
+  {id:'CS02',name:'Chi bộ trường THCS Ma Lâm',pw:'cs022026',type:'dang',grp:'Chi bộ cơ sở'},
+  {id:'CS03',name:'Chi bộ trường Tiểu học Lâm Hoà',pw:'cs032026',type:'dang',grp:'Chi bộ cơ sở'},
+  {id:'CS04',name:'Chi bộ trường Tiểu học Lâm Hưng',pw:'cs042026',type:'dang',grp:'Chi bộ cơ sở'},
+  {id:'CS05',name:'Chi bộ trường Mẫu giáo Ma Lâm',pw:'cs052026',type:'dang',grp:'Chi bộ cơ sở'},
+  {id:'CS06',name:'Chi bộ trường PTDT nội trú Hàm Thuận',pw:'cs062026',type:'dang',grp:'Chi bộ cơ sở'},
+  {id:'CS07',name:'Chi bộ trường Mầm non Hoa Hồng',pw:'cs072026',type:'dang',grp:'Chi bộ cơ sở'},
+  {id:'CS08',name:'Chi bộ trường Mẫu giáo Thuận Minh',pw:'cs082026',type:'dang',grp:'Chi bộ cơ sở'},
+  {id:'CS09',name:'Chi bộ trường Tiểu học Thuận Minh',pw:'cs092026',type:'dang',grp:'Chi bộ cơ sở'},
+  {id:'CS10',name:'Chi bộ trường THCS Thuận Minh',pw:'cs102026',type:'dang',grp:'Chi bộ cơ sở'},
+  {id:'CS11',name:'Chi bộ trường THCS Hàm Đức',pw:'cs112026',type:'dang',grp:'Chi bộ cơ sở'},
+  {id:'CS12',name:'Chi bộ trường Tiểu học Hàm Đức 1',pw:'cs122026',type:'dang',grp:'Chi bộ cơ sở'},
+  {id:'CS13',name:'Chi bộ trường Tiểu học Hàm Đức 2',pw:'cs132026',type:'dang',grp:'Chi bộ cơ sở'},
+  {id:'CS14',name:'Chi bộ trường Tiểu học Sa Ra',pw:'cs142026',type:'dang',grp:'Chi bộ cơ sở'},
+  {id:'CS15',name:'Chi bộ trường Mẫu giáo Hàm Đức',pw:'cs152026',type:'dang',grp:'Chi bộ cơ sở'},
+  {id:'CS16',name:'Chi bộ trường THPT Nguyễn Văn Linh',pw:'cs162026',type:'dang',grp:'Chi bộ cơ sở'},
+  {id:'CS17',name:'Chi bộ TT Chính trị xã Hàm Thuận',pw:'cs172026',type:'dang',grp:'Chi bộ cơ sở'},
+  {id:'CS18',name:'Chi bộ BQL công trình công cộng xã',pw:'cs182026',type:'dang',grp:'Chi bộ cơ sở'},
+  {id:'CS19',name:'Chi bộ TT Dịch vụ tổng hợp xã',pw:'cs192026',type:'dang',grp:'Chi bộ cơ sở'},
+  {id:'CS20',name:'Chi bộ Trạm Y tế xã',pw:'cs202026',type:'dang',grp:'Chi bộ cơ sở'},
+  // Chi bộ doanh nghiệp
+  {id:'DN01',name:'Chi bộ PGD Ngân hàng CSXH',pw:'dn012026',type:'dang',grp:'Chi bộ doanh nghiệp (HTX)'},
+  {id:'DN02',name:'Chi bộ Quỹ Tín dụng Ma Lâm',pw:'dn022026',type:'dang',grp:'Chi bộ doanh nghiệp (HTX)'},
+  {id:'DN03',name:'Chi bộ Quỹ Tín dụng Hàm Chính',pw:'dn032026',type:'dang',grp:'Chi bộ doanh nghiệp (HTX)'},
+  {id:'DN04',name:'Chi bộ Quỹ Tín dụng Thuận Đức',pw:'dn042026',type:'dang',grp:'Chi bộ doanh nghiệp (HTX)'},
+  // Chi bộ thôn
+  {id:'TH01',name:'Chi bộ thôn Lâm Hoà',pw:'th012026',type:'dang',grp:'Chi bộ thôn'},
+  {id:'TH02',name:'Chi bộ thôn Ma Lâm',pw:'th022026',type:'dang',grp:'Chi bộ thôn'},
+  {id:'TH03',name:'Chi bộ thôn Tầm Hưng',pw:'th032026',type:'dang',grp:'Chi bộ thôn'},
+  {id:'TH04',name:'Chi bộ thôn Thuận Minh',pw:'th042026',type:'dang',grp:'Chi bộ thôn'},
+  {id:'TH05',name:'Chi bộ thôn Đức Hòa',pw:'th052026',type:'dang',grp:'Chi bộ thôn'},
+  {id:'TH06',name:'Chi bộ thôn Hàm Đức',pw:'th062026',type:'dang',grp:'Chi bộ thôn'},
+  {id:'TH07',name:'Chi bộ thôn Tùy Hòa',pw:'th072026',type:'dang',grp:'Chi bộ thôn'},
+  {id:'TH08',name:'Chi bộ thôn Ku Kê',pw:'th082026',type:'dang',grp:'Chi bộ thôn'},
+];
+
+const GROUPS=[{id:'I',name:'I. Phát triển hạ tầng'},{id:'II',name:'II. Phát triển nguồn lực'},{id:'III',name:'III. KH&CN & Hệ sinh thái ĐMST'},{id:'IV',name:'IV. Chuyển đổi số'}];
+
+const IND=[
+  {stt:1,gr:'I',units:['UBND'],name:'Tỷ lệ phủ sóng 5G trên địa bàn đạt 70%.',tgt:'70%'},
+  {stt:2,gr:'I',units:['UBND'],name:'50% người dùng internet truy cập băng rộng cố định >500 Mbps.',tgt:'50%'},
+  {stt:3,gr:'I',units:['VPDU'],name:'Cơ quan tham mưu ĐU xã được trang bị thiết bị hiện đại, đồng bộ.',tgt:'Cơ bản hoàn thành'},
+  {stt:4,gr:'II',units:['UBND'],name:'Bố trí 1% tổng chi ngân sách xã cho KHCN, ĐMST.',tgt:'≥1%'},
+  {stt:5,gr:'II',units:['UBND'],name:'95% CBCCVC bồi dưỡng kỹ năng số; 90% làm chủ kỹ năng số.',tgt:'95%/90%'},
+  {stt:6,gr:'II',units:['UBND','BXD'],name:'50% cơ quan, đơn vị có cán bộ chuyên trách CNTT, CĐS.',tgt:'50%'},
+  {stt:7,gr:'III',units:['UBND'],name:'Xây dựng/nâng cao 01 HTX/THT ứng dụng công nghệ cao.',tgt:'01 HTX/THT'},
+  {stt:8,gr:'III',units:['UBND'],name:'Duy trì, phát triển ≥01 sản phẩm OCOP ≥3 sao.',tgt:'01 SP ≥3 sao'},
+  {stt:9,gr:'III',units:['UBND'],name:'60% hộ SXKD áp dụng thanh toán không dùng tiền mặt.',tgt:'60%'},
+  {stt:10,gr:'III',units:['UBND'],name:'Sản phẩm chủ lực xã quảng bá trên nền tảng số/sàn TMĐT.',tgt:'Có SP trên sàn'},
+  {stt:11,gr:'III',units:['UBND'],name:'100% SP OCOP và nông sản có mã vùng trồng/tem QR.',tgt:'100%'},
+  {stt:12,gr:'III',units:['MTTQ'],name:'Mỗi tổ chức CT-XH hỗ trợ ≥02 ý tưởng khởi nghiệp.',tgt:'≥02/tổ chức'},
+  {stt:13,gr:'III',units:['UBND'],name:'Giải ngân 100% chỉ tiêu vốn vay ưu đãi.',tgt:'100%'},
+  {stt:14,gr:'III',units:['UBND'],name:'100% thôn kiện toàn Tổ công nghệ số cộng đồng.',tgt:'100%'},
+  {stt:15,gr:'III',units:['UBND'],name:'Tổ chức ≥02 lớp tập huấn KHKT, kỹ năng số.',tgt:'≥02 lớp'},
+  {stt:16,gr:'III',units:['UBND'],name:'02 sáng kiến ứng dụng KHCN được công nhận.',tgt:'02 sáng kiến'},
+  {stt:17,gr:'IV',units:['UBND'],name:'100% TTHC thuộc thẩm quyền xã cung cấp trực tuyến.',tgt:'100%'},
+  {stt:18,gr:'IV',units:['UBND'],name:'80% hồ sơ TTHC tiếp nhận, xử lý trực tuyến.',tgt:'80%'},
+  {stt:19,gr:'IV',units:['UBND'],name:'80% hồ sơ TTHC số hóa, lưu trữ điện tử.',tgt:'80%'},
+  {stt:20,gr:'IV',units:['UBND'],name:'100% chỉ đạo, điều hành UBND xã trên MT số.',tgt:'100%'},
+  {stt:21,gr:'IV',units:['VPDU','MTTQ'],name:'100% CBCC sử dụng hệ thống QLVB & HSCV điện tử.',tgt:'100%'},
+  {stt:22,gr:'IV',units:['UBND','VPDU','MTTQ'],name:'100% hồ sơ mới tạo lập, xử lý trên MT điện tử.',tgt:'100%'},
+  {stt:23,gr:'IV',units:['BXD'],name:'100% tổ chức đảng dùng Sổ tay đảng viên điện tử.',tgt:'100%'},
+  {stt:24,gr:'IV',units:['VPDU'],name:'100% tổ chức đảng thực hiện 04 TTHC Đảng trên MT điện tử.',tgt:'100% (4 TT)'},
+  {stt:25,gr:'IV',units:['CA'],name:'≥80% người dân ≥14 tuổi được cấp VNeID.',tgt:'≥80%'},
+  {stt:26,gr:'IV',units:['UBND'],name:'Tỷ lệ người dân có chữ ký số ≥5%.',tgt:'≥5%'},
+  {stt:27,gr:'IV',units:['UBND'],name:'≥60% hộ KD, DN ứng dụng công nghệ số.',tgt:'≥60%'},
+  {stt:28,gr:'IV',units:['UBND'],name:'100% CBCCVC bồi dưỡng kỹ năng số cơ bản.',tgt:'100%'},
+  {stt:29,gr:'IV',units:['UBND','VPDU','MTTQ'],name:'80% CBCC đạt chuẩn kỹ năng nền tảng số.',tgt:'80%'},
+];
+
+const NV=[
+  {id:1,name:'Công tác lãnh đạo, chỉ đạo'},
+  {id:2,name:'Nâng cao nhận thức, quyết tâm chính trị, thông tin, truyền thông'},
+  {id:3,name:'Hoàn thiện cơ chế, chính sách tạo đột phá, bảo đảm nguồn lực'},
+  {id:4,name:'Phát triển hạ tầng số, ứng dụng và dịch vụ số'},
+  {id:5,name:'Xây dựng hệ sinh thái khởi nghiệp, ĐMST và hỗ trợ nghiên cứu, ứng dụng'},
+  {id:6,name:'Phát triển nguồn nhân lực phục vụ CĐS và ĐMST'},
+  {id:7,name:'Thực hiện CĐS, phát triển kinh tế số và xã hội số cấp xã'},
+  {id:8,name:'Bảo đảm an toàn thông tin, an ninh mạng và chủ quyền số'},
+  {id:9,name:'Đẩy mạnh hợp tác, liên kết và mở rộng quan hệ phối hợp'},
+  {id:10,name:'Giám sát, đánh giá'},
+];
+
+// ============================================================
+// CẤU HÌNH GOOGLE SHEETS
+// Dán URL Web App (Apps Script) vào giữa 2 dấu nháy. Để trống = chạy offline (demo).
+// ============================================================
+const API_URL='';
+const ONLINE=!!API_URL;
+
+// ============================================================
+// STATE
+// ============================================================
+let curUnit=null,curMonth=new Date().getMonth()+1,curTab='chitieu',admTab='adm-ct';
+let ctData={},nvData={};
+let editCt=null,editNv=null;
+let carryDismissed=false;
+
+// ============================================================
+// HELPERS
+// ============================================================
+function ctKey(u,stt,m){return`${u}_${stt}_${m}`}
+function nvKey(u,nv,m){return`${u}_${nv}_${m}`}
+function getCt(u,stt,m){return ctData[ctKey(u,stt,m)]}
+function getNv(u,nv,m){return nvData[nvKey(u,nv,m)]}
+function setCt(u,stt,m,d){ctData[ctKey(u,stt,m)]=d}
+function setNv(u,nv,m,d){nvData[nvKey(u,nv,m)]=d}
+function loadLocal(){try{ctData=JSON.parse(localStorage.getItem('kh40_ct')||'{}');nvData=JSON.parse(localStorage.getItem('kh40_nv')||'{}')}catch(e){}}
+function saveLocal(){try{localStorage.setItem('kh40_ct',JSON.stringify(ctData));localStorage.setItem('kh40_nv',JSON.stringify(nvData))}catch(e){}}
+
+// ============================================================
+// ĐỒNG BỘ VỚI GOOGLE SHEETS
+// ============================================================
+async function fetchAll(){
+  if(!ONLINE)return;
+  try{
+    const r=await fetch(`${API_URL}?action=fetchall`);
+    const d=await r.json();
+    if(d.success){
+      ctData={};nvData={};
+      (d.ct||[]).forEach(x=>setCt(x.unit,x.stt,x.month,{prog:x.prog,res:x.res,diff:x.diff,rp:x.rp,ts:x.ts}));
+      (d.nv||[]).forEach(x=>setNv(x.unit,x.nvid,x.month,{report:x.report,propose:x.propose,rp:x.rp,ts:x.ts}));
+      saveLocal();
+    }
+  }catch(e){/* offline: dùng dữ liệu đã lưu tạm */}
+}
+
+async function pushCt(unit,stt,month,d){
+  if(!ONLINE)return true;
+  try{
+    const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({action:'save_ct',unit,stt,month,year:2026,...d})});
+    const j=await r.json();return j.success;
+  }catch(e){return false}
+}
+
+async function pushNv(unit,nvid,month,d){
+  if(!ONLINE)return true;
+  try{
+    const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({action:'save_nv',unit,nvid,month,year:2026,...d})});
+    const j=await r.json();return j.success;
+  }catch(e){return false}
+}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
+function closeModal(id){$(id).classList.remove('show')}
+function fmtTime(ts){
+  if(!ts)return'';
+  const d=new Date(ts);
+  const pad=n=>String(n).padStart(2,'0');
+  return`${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+(function init(){
+  const sel=$('selUnit');
+  const grps={};
+  UNITS.forEach(u=>{if(!grps[u.grp])grps[u.grp]=[];grps[u.grp].push(u)});
+  Object.keys(grps).forEach(g=>{
+    const og=document.createElement('optgroup');og.label=g;
+    grps[g].forEach(u=>{const o=document.createElement('option');o.value=u.id;o.textContent=u.name;og.appendChild(o)});
+    sel.appendChild(og);
+  });
+  loadLocal();
+  if(!ONLINE&&!localStorage.getItem('kh40_v3')){seedDemo();localStorage.setItem('kh40_v3','1')}
+})();
+
+function seedDemo(){
+  const m=new Date().getMonth()+1;
+  setCt('UBND',17,m,{prog:100,res:'Đã cung cấp 100% TTHC trực tuyến trên Cổng DVC tỉnh.',diff:'',rp:'Nguyễn Văn A'});
+  setCt('UBND',18,m,{prog:65,res:'Đạt 65% hồ sơ trực tuyến.',diff:'Một số hộ dân chưa quen.',rp:'Nguyễn Văn A'});
+  setCt('UBND',14,m,{prog:80,res:'8/10 thôn đã kiện toàn Tổ CNSCĐ.',diff:'2 thôn thiếu nhân sự.',rp:'Trần Thị B'});
+  setCt('VPDU',24,m,{prog:70,res:'3/4 thủ tục đã triển khai.',diff:'Chuyển SH tạm thời chờ cập nhật PM.',rp:'Nguyễn Anh Tiến'});
+  setCt('CA',25,m,{prog:75,res:'75% người dân đủ ĐK đã có VNeID.',diff:'Một số CMND cũ chưa đồng bộ.',rp:'Lê Văn C'});
+  setNv('UBND',7,m,{report:'Triển khai hệ thống một cửa điện tử, vận hành ổn định. Tổ chức 01 buổi tập huấn CBCC.',propose:'Đề xuất trang bị thêm 02 máy tính.',rp:'Nguyễn Văn A'});
+  setNv('VPDU',1,m,{report:'Tham mưu BTV ban hành 02 văn bản chỉ đạo CĐS. Đưa NQ57 vào sinh hoạt chi bộ.',propose:'',rp:'Nguyễn Anh Tiến'});
+  setNv('TH02',2,m,{report:'Tổ chức tuyên truyền NQ57 tại cuộc họp thôn tháng '+m+', có 45 hộ dân tham dự.',propose:'',rp:'Đào Thị Mộng Trinh'});
+  setNv('CS02',6,m,{report:'100% giáo viên đã đăng ký tài khoản trên nền tảng học trực tuyến.',propose:'Cần hỗ trợ đường truyền internet cho trường.',rp:'Nguyễn Văn Chấn'});
+  saveLocal();
+}
+
+// ============================================================
+// AUTH
+// ============================================================
+async function doLogin(){
+  const uid=$('selUnit').value,pw=$('txtPw').value.trim();
+  if(!uid){showErr('Vui lòng chọn đơn vị.');return}
+  if(!pw){showErr('Vui lòng nhập mã truy cập.');return}
+  const u=UNITS.find(x=>x.id===uid);
+  if(!ONLINE){
+    if(u&&u.pw===pw){curUnit=u;enterUnit()}else showErr('Mã truy cập không đúng.');
+    return;
+  }
+  // ONLINE: xác thực qua server rồi tải dữ liệu
+  showErr('Đang kết nối...');$('loginErr').style.color='#5a6178';
+  try{
+    const r=await fetch(`${API_URL}?action=login&unit=${uid}&pw=${encodeURIComponent(pw)}`);
+    const d=await r.json();
+    if(d.success){curUnit=u;$('loginErr').style.display='none';$('loginErr').style.color='#dc2626';await fetchAll();enterUnit()}
+    else{$('loginErr').style.color='#dc2626';showErr(d.message||'Mã truy cập không đúng.')}
+  }catch(e){$('loginErr').style.color='#dc2626';showErr('Lỗi kết nối. Kiểm tra mạng hoặc URL.')}
+}
+async function doAdminLogin(){
+  const pw=prompt('Nhập mã quản trị:');
+  if(pw===ADMIN_PW){if(ONLINE)await fetchAll();enterAdmin()}
+  else if(pw!==null)alert('Mã quản trị không đúng.');
+}
+function showErr(m){const e=$('loginErr');e.textContent=m;e.style.display='block';setTimeout(()=>e.style.display='none',3500)}
+function doLogout(){
+  curUnit=null;
+  $('loginScreen').classList.remove('hidden');
+  $('unitScreen').classList.add('hidden');
+  $('adminScreen').classList.add('hidden');
+  $('txtPw').value='';
+}
+
+// ============================================================
+// UNIT VIEW
+// ============================================================
+function enterUnit(){
+  $('loginScreen').classList.add('hidden');
+  $('unitScreen').classList.remove('hidden');
+  $('hdrUnit').textContent=curUnit.name;
+  carryDismissed=false;
+
+  const isDang=curUnit.type==='dang';
+  $('unitTabs').classList.toggle('hidden',isDang);
+
+  if(isDang){
+    curTab='nhiemvu';
+    $('tabChitieu').classList.add('hidden');
+    $('tabNhiemvu').classList.remove('hidden');
+    $('monthBar').classList.add('nv-only');
+  } else {
+    curTab='chitieu';
+    $('tabChitieu').classList.remove('hidden');
+    $('tabNhiemvu').classList.add('hidden');
+    $('monthBar').classList.remove('nv-only');
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab==='chitieu'));
+  }
+  renderMonthBar();renderAll();
+}
+
+function switchTab(tab,btn){
+  curTab=tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  $('tabChitieu').classList.toggle('hidden',tab!=='chitieu');
+  $('tabNhiemvu').classList.toggle('hidden',tab!=='nhiemvu');
+}
+
+function renderAll(){
+  if(curUnit.type==='cq')renderCt();
+  renderNv();
+  checkCarry();
+}
+
+function renderMonthBar(){
+  const bar=$('monthBar');bar.innerHTML='';
+  const myInd=IND.filter(i=>i.units.includes(curUnit.id));
+  for(let m=1;m<=12;m++){
+    const p=document.createElement('button');p.className='mpill'+(m===curMonth?' active':'');
+    let has=(curUnit.type==='cq'&&myInd.some(i=>getCt(curUnit.id,i.stt,m)))||NV.some(n=>getNv(curUnit.id,n.id,m));
+    p.innerHTML=MSH[m]+(has?'<span class="dot"></span>':'');
+    p.onclick=()=>{curMonth=m;carryDismissed=false;renderMonthBar();renderAll()};
+    bar.appendChild(p);
+  }
+  const a=bar.querySelector('.active');if(a)a.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+}
+
+// ============================================================
+// CARRY-FORWARD (LŨY KẾ)
+// ============================================================
+function checkCarry(){
+  if(carryDismissed||curMonth<=1){$('carryBanner').classList.add('hidden');return}
+  const pm=curMonth-1;
+  let hasPrev=false,hasCur=false;
+  if(curUnit.type==='cq'){
+    const my=IND.filter(i=>i.units.includes(curUnit.id));
+    hasPrev=my.some(i=>getCt(curUnit.id,i.stt,pm));
+    hasCur=my.some(i=>getCt(curUnit.id,i.stt,curMonth));
+  }
+  if(!hasPrev){hasPrev=NV.some(n=>getNv(curUnit.id,n.id,pm))}
+  if(!hasCur){hasCur=NV.some(n=>getNv(curUnit.id,n.id,curMonth))}
+
+  if(hasPrev&&!hasCur){
+    $('carryText').textContent=`${MSH[pm]} có dữ liệu. Lấy làm lũy kế cho ${MSH[curMonth]}?`;
+    $('carryBanner').classList.remove('hidden');
+  } else {
+    $('carryBanner').classList.add('hidden');
+  }
+}
+
+function doCarryForward(){
+  const pm=curMonth-1;
+  let count=0;
+  if(curUnit.type==='cq'){
+    IND.filter(i=>i.units.includes(curUnit.id)).forEach(i=>{
+      const prev=getCt(curUnit.id,i.stt,pm);
+      if(prev&&!getCt(curUnit.id,i.stt,curMonth)){
+        setCt(curUnit.id,i.stt,curMonth,{...prev,ts:new Date().toISOString()});count++;
+      }
+    });
+  }
+  NV.forEach(n=>{
+    const prev=getNv(curUnit.id,n.id,pm);
+    if(prev&&!getNv(curUnit.id,n.id,curMonth)){
+      setNv(curUnit.id,n.id,curMonth,{...prev,ts:new Date().toISOString()});count++;
+    }
+  });
+  saveLocal();
+  $('carryBanner').classList.add('hidden');
+  renderMonthBar();renderAll();
+  toast(`Đã lũy kế ${count} mục từ ${MSH[pm]}`);
+}
+
+function dismissCarry(){carryDismissed=true;$('carryBanner').classList.add('hidden')}
+
+// ============================================================
+// CHỈ TIÊU
+// ============================================================
+function renderCt(){
+  const c=$('indContainer');c.innerHTML='';
+  const my=IND.filter(i=>i.units.includes(curUnit.id));
+  let t=my.length,d=0,w=0;
+  const gr={};GROUPS.forEach(g=>gr[g.id]=[]);
+  my.forEach(i=>{if(gr[i.gr])gr[i.gr].push(i)});
+  GROUPS.forEach(g=>{
+    if(!gr[g.id].length)return;
+    const tt=document.createElement('div');tt.className='stitle';tt.textContent=g.name;c.appendChild(tt);
+    const li=document.createElement('div');li.className='ilist';
+    gr[g.id].forEach(ind=>{
+      const dd=getCt(curUnit.id,ind.stt,curMonth);
+      let st='empty',pt='·';
+      if(dd){if(dd.prog>=100){st='done';d++}else{st='wip';w++};pt=dd.prog+'%'}
+      const cd=document.createElement('div');cd.className=`icard s-${st}`;cd.onclick=()=>openCtModal(ind);
+      const upd=dd&&dd.ts?` · Cập nhật: ${fmtTime(dd.ts)}`:'';
+      cd.innerHTML=`<div class="stt">${ind.stt}</div><div class="inf"><div class="cname">${ind.name}</div><div class="cmeta">Mục tiêu: ${ind.tgt}${upd}</div></div><div class="cprog ${st}">${pt}</div>`;
+      li.appendChild(cd);
+    });c.appendChild(li);
+  });
+  $('sT').textContent=t;$('sD').textContent=d;$('sW').textContent=w;$('sE').textContent=t-d-w;
+}
+
+// ============================================================
+// NHIỆM VỤ
+// ============================================================
+function renderNv(){
+  const c=$('nvContainer');c.innerHTML='';
+  const title=document.createElement('div');title.className='stitle';title.textContent='III. Nhiệm vụ và Giải pháp';c.appendChild(title);
+  NV.forEach(nv=>{
+    const dd=getNv(curUnit.id,nv.id,curMonth);
+    const cd=document.createElement('div');cd.className='nvcard'+(dd?' has-data':'');cd.onclick=()=>openNvModal(nv);
+    let preview='';if(dd&&dd.report)preview=`<div class="nv-preview">${dd.report}</div>`;
+    const stt=dd?(dd.ts?`✓ ${fmtTime(dd.ts)}`:'✓ Đã nhập'):'Chưa nhập';
+    cd.innerHTML=`<div class="nv-head"><div class="nv-num">${nv.id}</div><div class="nv-title">${nv.name}</div><div class="nv-status">${stt}</div></div>${preview}`;
+    c.appendChild(cd);
+  });
+}
+
+// ============================================================
+// MODALS
+// ============================================================
+function openCtModal(ind){
+  editCt=ind;
+  $('mCtTitle').textContent=`CT${ind.stt}. ${ind.name}`;
+  $('mCtMonth').textContent=MNAMES[curMonth];
+  const dcur=getCt(curUnit.id,ind.stt,curMonth);
+  const savedLine=dcur&&dcur.ts?`<br><strong>Lưu lần cuối:</strong> ${fmtTime(dcur.ts)} (${dcur.rp||''})`:'';
+  $('mCtTarget').innerHTML=`<strong>Mục tiêu:</strong> ${ind.tgt}<br><strong>Đơn vị:</strong> ${curUnit.name}${savedLine}`;
+  // Show previous month data
+  const prev=curMonth>1?getCt(curUnit.id,ind.stt,curMonth-1):null;
+  if(prev){
+    $('mCtPrev').innerHTML=`<strong>Tháng trước (${MSH[curMonth-1]}):</strong> ${prev.prog}% — ${prev.res||'(không có mô tả)'}`;
+    $('mCtPrev').classList.remove('hidden');
+  } else {$('mCtPrev').classList.add('hidden')}
+  const d=getCt(curUnit.id,ind.stt,curMonth)||{};
+  $('inProg').value=d.prog||0;$('pctL').textContent=(d.prog||0)+'%';
+  $('inResult').value=d.res||'';$('inDiff').value=d.diff||'';$('inReporter').value=d.rp||'';
+  $('modalCt').classList.add('show');
+}
+
+function openNvModal(nv){
+  editNv=nv;
+  $('mNvTitle').textContent=`${nv.id}. ${nv.name}`;
+  $('mNvMonth').textContent=MNAMES[curMonth];
+  const prev=curMonth>1?getNv(curUnit.id,nv.id,curMonth-1):null;
+  if(prev){
+    $('mNvPrev').innerHTML=`<strong>Tháng trước (${MSH[curMonth-1]}):</strong> ${prev.report.substring(0,150)}${prev.report.length>150?'...':''}`;
+    $('mNvPrev').classList.remove('hidden');
+  } else {$('mNvPrev').classList.add('hidden')}
+  const d=getNv(curUnit.id,nv.id,curMonth)||{};
+  $('inNvReport').value=d.report||'';$('inNvPropose').value=d.propose||'';$('inNvReporter').value=d.rp||'';
+  $('modalNv').classList.add('show');
+}
+
+async function saveCt(){
+  if(!editCt)return;
+  const rp=$('inReporter').value.trim();
+  if(!rp){toast('Vui lòng nhập tên người báo cáo.');return}
+  const d={prog:parseInt($('inProg').value)||0,res:$('inResult').value.trim(),diff:$('inDiff').value.trim(),rp,ts:new Date().toISOString()};
+  setCt(curUnit.id,editCt.stt,curMonth,d);
+  saveLocal();closeModal('modalCt');renderMonthBar();renderAll();
+  if(ONLINE){
+    toast('Đang lưu lên hệ thống...');
+    const ok=await pushCt(curUnit.id,editCt.stt,curMonth,d);
+    toast(ok?'Đã lưu CT'+editCt.stt+' lên hệ thống':'Lưu tạm (mất mạng) — sẽ đồng bộ sau');
+  } else toast('Đã lưu CT'+editCt.stt+' — '+MSH[curMonth]);
+}
+
+async function saveNv(){
+  if(!editNv)return;
+  const rp=$('inNvReporter').value.trim();
+  if(!rp){toast('Vui lòng nhập tên người báo cáo.');return}
+  const report=$('inNvReport').value.trim();
+  if(!report){toast('Vui lòng nhập nội dung báo cáo.');return}
+  const d={report,propose:$('inNvPropose').value.trim(),rp,ts:new Date().toISOString()};
+  setNv(curUnit.id,editNv.id,curMonth,d);
+  saveLocal();closeModal('modalNv');renderMonthBar();renderAll();
+  if(ONLINE){
+    toast('Đang lưu lên hệ thống...');
+    const ok=await pushNv(curUnit.id,editNv.id,curMonth,d);
+    toast(ok?'Đã lưu NV'+editNv.id+' lên hệ thống':'Lưu tạm (mất mạng) — sẽ đồng bộ sau');
+  } else toast('Đã lưu NV'+editNv.id+' — '+MSH[curMonth]);
+}
+
+// ============================================================
+// ADMIN
+// ============================================================
+function enterAdmin(){
+  $('loginScreen').classList.add('hidden');
+  $('adminScreen').classList.remove('hidden');
+  const ms=$('admMonth');ms.innerHTML='';
+  for(let m=1;m<=12;m++){const o=document.createElement('option');o.value=m;o.textContent=MNAMES[m];if(m===curMonth)o.selected=true;ms.appendChild(o)}
+  const us=$('admUnit');us.innerHTML='<option value="">Tất cả</option>';
+  const grps={};UNITS.forEach(u=>{if(!grps[u.grp])grps[u.grp]=[];grps[u.grp].push(u)});
+  Object.keys(grps).forEach(g=>{
+    const og=document.createElement('optgroup');og.label=g;
+    grps[g].forEach(u=>{const o=document.createElement('option');o.value=u.id;o.textContent=u.name;og.appendChild(o)});
+    us.appendChild(og);
+  });
+  admTab='adm-ct';renderAdmin();
+}
+
+function switchAdmTab(tab,btn){
+  admTab=tab;
+  document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  $('admCtPanel').classList.toggle('hidden',tab!=='adm-ct');
+  $('admNvPanel').classList.toggle('hidden',tab!=='adm-nv');
+  renderAdmin();
+}
+
+async function refreshAdmin(){
+  if(!ONLINE){toast('Đang ở chế độ demo (chưa nối Sheets)');return}
+  toast('Đang tải lại dữ liệu...');
+  await fetchAll();
+  renderAdmin();
+  toast('Đã cập nhật dữ liệu mới nhất');
+}
+
+function renderAdmin(){
+  const m=parseInt($('admMonth').value);
+  const fu=$('admUnit').value;
+  if(admTab==='adm-ct')renderAdmCt(m,fu);else renderAdmNv(m,fu);
+}
+
+function renderAdmCt(month,fu){
+  const w=$('admTableWrap');
+  const cqUnits=UNITS.filter(u=>u.type==='cq');
+  const showU=fu?cqUnits.filter(u=>u.id===fu):cqUnits.filter(u=>IND.some(i=>i.units.includes(u.id)));
+  let html='<table class="admin-table"><thead><tr><th>STT</th><th style="min-width:180px">Chỉ tiêu</th><th>Mục tiêu</th>';
+  showU.forEach(u=>{html+=`<th style="min-width:90px">${u.name.replace(/xã Hàm Thuận|Đảng ủy xã|Ủy ban |Ban TT /g,'').trim()}</th>`});
+  html+='</tr></thead><tbody>';
+  IND.forEach(ind=>{
+    html+=`<tr><td style="font-weight:700;text-align:center">${ind.stt}</td><td style="font-size:11px;line-height:1.4">${ind.name}</td><td style="font-size:11px;white-space:nowrap">${ind.tgt}</td>`;
+    showU.forEach(u=>{
+      if(!ind.units.includes(u.id)){html+='<td class="cell-empty">—</td>';return}
+      const d=getCt(u.id,ind.stt,month);
+      if(!d)html+='<td class="cell-empty">chưa nhập</td>';
+      else if(d.prog>=100)html+=`<td class="cell-done" title="${d.res||''}">${d.prog}%</td>`;
+      else html+=`<td class="cell-wip" title="${d.res||''}">${d.prog}%</td>`;
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  w.innerHTML=html;
+}
+
+function renderAdmNv(month,fu){
+  const c=$('admNvContent');
+  const units=fu?UNITS.filter(u=>u.id===fu):UNITS;
+  let html='';let totalReports=0;
+  NV.forEach(nv=>{
+    let reports='';
+    units.forEach(u=>{
+      const d=getNv(u.id,nv.id,month);
+      if(!d)return;totalReports++;
+      reports+=`<div class="nv-report-block"><div class="rpt-unit">${u.name}</div><div class="rpt-text">${d.report}</div>${d.propose?`<div class="rpt-text" style="margin-top:4px"><em>Kiến nghị:</em> ${d.propose}</div>`:''}
+      <div class="rpt-meta">Người nhập: ${d.rp} · ${d.ts?new Date(d.ts).toLocaleString('vi-VN'):''}</div></div>`;
+    });
+    html+=`<div class="stitle" style="max-width:none">${nv.id}. ${nv.name}</div>`;
+    html+=reports||`<div class="no-data">Chưa có báo cáo</div>`;
+  });
+  // Stats header
+  const uReported=new Set();
+  UNITS.forEach(u=>{NV.forEach(n=>{if(getNv(u.id,n.id,month))uReported.add(u.id)})});
+  c.innerHTML=`<div class="adm-stat"><div class="scard"><div class="n n-d">${uReported.size}</div><div class="l">Đơn vị đã báo cáo</div></div><div class="scard"><div class="n n-t">${UNITS.length}</div><div class="l">Tổng đơn vị</div></div><div class="scard"><div class="n n-w">${totalReports}</div><div class="l">Lượt báo cáo</div></div></div>`+html;
+}
+
+// ============================================================
+// EXPORT
+// ============================================================
+function exportCSV(){
+  const m=parseInt($('admMonth').value);const fu=$('admUnit').value;
+  const uName=fu?UNITS.find(u=>u.id===fu).name:'Tất cả';
+  let csv='\uFEFF'+`BÁO CÁO TỔNG HỢP KH40 - ${MNAMES[m]}/2026 - ${uName}\n\n`;
+  csv+='PHẦN I: CHỈ TIÊU\nSTT,Chỉ tiêu,Mục tiêu,Đơn vị,Tiến độ (%),Kết quả,Khó khăn,Người nhập\n';
+  const units=fu?UNITS.filter(u=>u.id===fu):UNITS;
+  IND.forEach(ind=>{units.forEach(u=>{
+    if(!ind.units.includes(u.id))return;const d=getCt(u.id,ind.stt,m);
+    csv+=[ind.stt,`"${ind.name}"`,`"${ind.tgt}"`,`"${u.name}"`,d?d.prog:'',d?`"${(d.res||'').replace(/"/g,'""')}"`:'',d?`"${(d.diff||'').replace(/"/g,'""')}"`:'',d?`"${d.rp}"`:''].join(',')+'\n';
+  })});
+  csv+='\nPHẦN II: NHIỆM VỤ VÀ GIẢI PHÁP\nSTT,Nhiệm vụ,Đơn vị,Báo cáo,Kiến nghị,Người nhập\n';
+  NV.forEach(nv=>{units.forEach(u=>{
+    const d=getNv(u.id,nv.id,m);if(!d)return;
+    csv+=[nv.id,`"${nv.name}"`,`"${u.name}"`,`"${(d.report||'').replace(/"/g,'""')}"`,`"${(d.propose||'').replace(/"/g,'""')}"`,`"${d.rp}"`].join(',')+'\n';
+  })});
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download=`KH40_T${m}_2026.csv`;a.click();
+  toast('Đã tải CSV');
+}
+</script>
+</body>
+</html>
